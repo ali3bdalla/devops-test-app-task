@@ -6,10 +6,8 @@ resource "aws_launch_template" "devops-test-app-queue-worker-launch-template" {
   monitoring {
     enabled = true
   }
-  user_data = filebase64("${path.module}/helpers/install-nginx.sh")
-
   network_interfaces {
-    associate_public_ip_address = true
+    associate_public_ip_address = false
     subnet_id                   = aws_subnet.devops-test-app-private-subnet.id
     security_groups = [
       aws_security_group.devops-test-queue-worker-security-group.id,
@@ -25,7 +23,7 @@ resource "aws_launch_template" "devops-test-app-queue-worker-launch-template" {
 
 resource "aws_autoscaling_group" "devops-test-queue-worker-autoscaling-group" {
   capacity_rebalance = true
-  desired_capacity   = 12
+  desired_capacity   = 1
   max_size           = 100
   min_size           = 0
   name               = "${var.environment_prefix}-queue-worker-autoscaling-group"
@@ -64,6 +62,7 @@ resource "aws_autoscaling_policy" "devops-test-queue-worker-scaling-down-policy"
 resource "aws_security_group" "devops-test-queue-worker-security-group" {
   vpc_id      = aws_vpc.devops-test-app-vpc.id
   description = "queue worker security group"
+
   ingress {
     from_port = 1220
     to_port   = 1220
@@ -72,14 +71,7 @@ resource "aws_security_group" "devops-test-queue-worker-security-group" {
       var.vpc_cibr_block,
     ]
   }
-  ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    cidr_blocks = [
-      var.vpc_cibr_block,
-    ]
-  }
+
   egress {
     from_port = 0
     to_port   = 0

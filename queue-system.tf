@@ -13,7 +13,7 @@ resource "aws_sqs_queue" "devops-test-queuing-system" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "sqs:SendMessage",
-      "Resource": "arn:aws:sqs:*:*:${var.environment_prefix}devops-test-queuing-system",
+      "Resource": "arn:aws:sqs:*:*:${var.environment_prefix}-devops-test-queuing-system",
       "Condition": {
         "ArnEquals": { "aws:SourceArn": "${aws_s3_bucket.devops-test-app-s3-bucket.arn}" }
       }

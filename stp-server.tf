@@ -66,12 +66,12 @@ resource "aws_iam_role_policy" "devops-test-app-transfer-server-iam-role-policy"
 POLICY
 }
 
-resource "aws_transfer_access" "devops-test-app-transfer-access" {
-  external_id    = "S-1-1-12-232353-123456789-1234567890-1234"
-  server_id      = aws_transfer_server.devops-test-app-transfer-server.id
-  role           = aws_iam_role.devops-test-app-transfer-server-iam-role.arn
-  home_directory = "/${aws_s3_bucket.devops-test-app-s3-bucket.id}/"
-}
+# resource "aws_transfer_access" "devops-test-app-transfer-access" {
+#   external_id    = "S-1-1-12-232353-123456789-1234567890-1234"
+#   server_id      = aws_transfer_server.devops-test-app-transfer-server.id
+#   role           = aws_iam_role.devops-test-app-transfer-server-iam-role.arn
+#   home_directory = "/${aws_s3_bucket.devops-test-app-s3-bucket.id}/"
+# }
 
 resource "aws_transfer_user" "devops-test-app-transfer-user" {
   server_id           = aws_transfer_server.devops-test-app-transfer-server.id

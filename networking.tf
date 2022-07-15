@@ -76,6 +76,8 @@ resource "aws_route_table_association" "devops-test-backend-route-table-associat
 }
 
 
+
+
 resource "aws_route_table" "devops-test-app-private-route-table" {
   vpc_id = aws_vpc.devops-test-app-vpc.id
   tags = {
@@ -90,3 +92,61 @@ resource "aws_route_table" "devops-test-app-private-route-table" {
 }
 
 
+
+resource "aws_network_acl" "devops-test-app-public-network-acl" {
+  vpc_id = aws_vpc.devops-test-app-vpc.id
+  tags = {
+    "Name"        = "devops-test-${var.environment_prefix}-public-network-acl"
+    "Environment" = "${var.environment}"
+  }
+
+
+
+  egress {
+    rule_no    = 100
+    protocol   = "-1"
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+  ingress {
+    rule_no    = 200
+    protocol   = "-1"
+    action     = "allow"
+    cidr_block = var.vpc_cibr_block
+    from_port  = 0
+    to_port    = 0
+  }
+  ingress {
+    rule_no    = 300
+    protocol   = "tcp"
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 80
+    to_port    = 80
+  }
+  ingress {
+    rule_no    = 400
+    protocol   = "tcp"
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 220
+    to_port    = 220
+  }
+  ingress {
+    rule_no    = 500
+    protocol   = "tcp"
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 443
+    to_port    = 443
+  }
+
+}
+
+resource "aws_network_acl_association" "devops-test-app-public-network-acl-association" {
+  subnet_id      = aws_subnet.devops-test-app-public-subnet.id
+  network_acl_id = aws_network_acl.devops-test-app-public-network-acl.id
+  depends_on     = [aws_internet_gateway.devops-test-app-igw]
+}
