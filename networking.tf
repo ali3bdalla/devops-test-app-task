@@ -65,12 +65,12 @@ resource "aws_route_table" "devops-test-app-public-route-table" {
   }
 }
 
-resource "aws_route_table_association" "devops-test-frontend-route-table-association" {
+resource "aws_route_table_association" "devops-test-public-route-table-association" {
   subnet_id      = aws_subnet.devops-test-app-private-subnet.id
   route_table_id = aws_route_table.devops-test-app-private-route-table.id
 }
 
-resource "aws_route_table_association" "devops-test-backend-route-table-association" {
+resource "aws_route_table_association" "devops-test-private-route-table-association" {
   subnet_id      = aws_subnet.devops-test-app-public-subnet.id
   route_table_id = aws_route_table.devops-test-app-public-route-table.id
 }
@@ -126,6 +126,7 @@ resource "aws_network_acl" "devops-test-app-public-network-acl" {
     from_port  = 80
     to_port    = 80
   }
+
   ingress {
     rule_no    = 400
     protocol   = "tcp"
@@ -142,7 +143,14 @@ resource "aws_network_acl" "devops-test-app-public-network-acl" {
     from_port  = 443
     to_port    = 443
   }
-
+  ingress {
+    rule_no    = 600
+    protocol   = "tcp"
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 1220
+    to_port    = 1220
+  }
 }
 
 resource "aws_network_acl_association" "devops-test-app-public-network-acl-association" {

@@ -44,8 +44,6 @@ resource "aws_autoscaling_group" "devops-test-app-webserver-autoscaling-group" {
   lifecycle {
     create_before_destroy = true
   }
-
-
   force_delete = true
 }
 
