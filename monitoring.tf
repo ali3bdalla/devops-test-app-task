@@ -78,3 +78,29 @@ resource "aws_cloudwatch_dashboard" "devops-test-app-cloud-watch-dashboard" {
 }
 EOF
 }
+
+resource "aws_cloudwatch_metric_alarm" "devops-test-app-cloud-sqs-health-check" {
+  alarm_name                = "devops-test-${var.environment_prefix}-cloud-watch-ec2-health-check"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "ApproximateNumberOfMessagesVisible"
+  namespace                 = "AWS/SQS"
+  period                    = "60"
+  statistic                 = "Average"
+  threshold                 = "5000"
+  alarm_description         = "This metric monitors ec2 cpu utilization"
+  insufficient_data_actions = []
+}
+
+resource "aws_cloudwatch_metric_alarm" "devops-test-app-cloud-watch-ec2-health-check" {
+  alarm_name                = "devops-test-${var.environment_prefix}-cloud-watch-ec2-health-check"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "2"
+  metric_name               = "CPUUtilization"
+  namespace                 = "AWS/EC2"
+  period                    = "120"
+  statistic                 = "Average"
+  threshold                 = "80"
+  alarm_description         = "This metric monitors ec2 cpu utilization"
+  insufficient_data_actions = []
+}
