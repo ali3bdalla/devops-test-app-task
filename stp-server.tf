@@ -1,24 +1,15 @@
 
 
-# resource "aws_eip" "devops-test-app-sftp-eip" {
-#   vpc        = true
-#   depends_on = [aws_internet_gateway.devops-test-app-igw]
-#   tags = {
-#     "Name"        = "devops-test-${var.environment_prefix}-sftp-eip"
-#     "Environment" = "${var.environment}"
-#   }
-# }
 resource "aws_transfer_server" "devops-test-app-transfer-server" {
   identity_provider_type = "SERVICE_MANAGED"
-  endpoint_type          = "PUBLIC"
-  # endpoint_details {
-  #   subnet_ids             = [aws_subnet.devops-test-app-public-subnet.id]
-  #   vpc_id                 = aws_vpc.devops-test-app-vpc.id
-  #   address_allocation_ids = [aws_eip.devops-test-app-sftp-eip.id]
-  #   security_group_ids = [
-  #     aws_security_group.devops-test-app-transfer-server-sg.id,
-  #   ]
-  # }
+  endpoint_type          = "VPC"
+  endpoint_details {
+    subnet_ids = [aws_subnet.devops-test-app-private-subnet.id]
+    vpc_id     = aws_vpc.devops-test-app-vpc.id
+    security_group_ids = [
+      aws_security_group.devops-test-app-transfer-server-sg.id,
+    ]
+  }
   tags = {
     "Name"        = "devops-test-${var.environment_prefix}-transfer-server"
     "Environment" = "${var.environment}"
@@ -87,27 +78,27 @@ resource "aws_transfer_user" "devops-test-app-transfer-user" {
 
 
 
-# resource "aws_security_group" "devops-test-app-transfer-server-sg" {
-#   vpc_id      = aws_vpc.devops-test-app-vpc.id
-#   description = "sftp server security group"
-#   ingress {
-#     from_port = 22
-#     to_port   = 22
-#     protocol  = "tcp"
-#     cidr_blocks = [
-#       "0.0.0.0/0",
-#     ]
-#   }
-#   egress {
-#     from_port = 0
-#     to_port   = 0
-#     protocol  = "-1"
-#     cidr_blocks = [
-#       "0.0.0.0/0"
-#     ]
-#   }
-#   tags = {
-#     "Name"        = "devops-test-${var.environment_prefix}-transfer-server-sg"
-#     "Environment" = "${var.environment}"
-#   }
-# }
+resource "aws_security_group" "devops-test-app-transfer-server-sg" {
+  vpc_id      = aws_vpc.devops-test-app-vpc.id
+  description = "sftp server security group"
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    cidr_blocks = [
+      var.vpc_cibr_block,
+    ]
+  }
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = [
+      var.vpc_cibr_block
+    ]
+  }
+  tags = {
+    "Name"        = "devops-test-${var.environment_prefix}-transfer-server-sg"
+    "Environment" = "${var.environment}"
+  }
+}

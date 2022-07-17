@@ -63,15 +63,6 @@ resource "aws_security_group" "devops-test-queue-worker-security-group" {
   vpc_id      = aws_vpc.devops-test-app-vpc.id
   description = "queue worker security group"
 
-  ingress {
-    from_port = 1220
-    to_port   = 1220
-    protocol  = "tcp"
-    cidr_blocks = [
-      var.vpc_cibr_block,
-    ]
-  }
-
   egress {
     from_port = 0
     to_port   = 0

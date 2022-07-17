@@ -6,10 +6,9 @@ resource "aws_launch_template" "devops-test-app-webserver-launch-template" {
     enabled = true
   }
   user_data = filebase64("${path.module}/helpers/install-nginx.sh")
-
   network_interfaces {
-    associate_public_ip_address = true
-    subnet_id                   = aws_subnet.devops-test-app-public-subnet.id
+    associate_public_ip_address = false
+    subnet_id                   = aws_subnet.devops-test-app-private-subnet.id
     security_groups = [
       aws_security_group.devops-test-web-server-security-group.id,
     ]
@@ -31,7 +30,7 @@ resource "aws_autoscaling_policy" "devops-test-app-webserver-scaling-policy" {
 }
 
 resource "aws_autoscaling_group" "devops-test-app-webserver-autoscaling-group" {
-  availability_zones        = [aws_subnet.devops-test-app-public-subnet.availability_zone]
+  availability_zones        = [aws_subnet.devops-test-app-private-subnet.availability_zone]
   name                      = "${var.environment_prefix}-webserver-autoscaling-group"
   desired_capacity          = 1
   max_size                  = 10
@@ -52,8 +51,8 @@ resource "aws_security_group" "devops-test-web-server-security-group" {
   vpc_id      = aws_vpc.devops-test-app-vpc.id
   description = "Web server security group"
   ingress {
-    from_port = 1220
-    to_port   = 1220
+    from_port = 22
+    to_port   = 22
     protocol  = "tcp"
     cidr_blocks = [
       var.vpc_cibr_block,
@@ -64,7 +63,7 @@ resource "aws_security_group" "devops-test-web-server-security-group" {
     to_port   = 80
     protocol  = "tcp"
     cidr_blocks = [
-      "0.0.0.0/0",
+      var.vpc_cibr_block,
     ]
   }
   egress {
@@ -80,11 +79,32 @@ resource "aws_security_group" "devops-test-web-server-security-group" {
     to_port   = 443
     protocol  = "tcp"
     cidr_blocks = [
-      "0.0.0.0/0",
+      var.vpc_cibr_block,
     ]
   }
   tags = {
     "Name"        = "devops-test-${var.environment_prefix}-web-server-security-group"
+    "Environment" = "${var.environment}"
+  }
+}
+
+resource "aws_alb_listener" "devops-test-app-webserver-alb-listener" {
+  load_balancer_arn = aws_lb.devops-test-app-public-lb.arn
+  protocol          = "TCP"
+  port              = 80
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.devops-test-app-webserver-lb-target-group.arn
+  }
+}
+
+resource "aws_lb_target_group" "devops-test-app-webserver-lb-target-group" {
+  port     = 80
+  protocol = "TCP"
+  vpc_id   = aws_vpc.devops-test-app-vpc.id
+  name     = "${var.environment_prefix}-webserver-lb-target-group"
+  tags = {
+    "Name"        = "devops-test-${var.environment_prefix}-webserver-lb-target-group"
     "Environment" = "${var.environment}"
   }
 }
