@@ -11,12 +11,12 @@ resource "aws_s3_bucket" "devops-test-app-s3-bucket" {
 
 }
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.devops-test-app-s3-bucket.id
-  queue {
-    queue_arn = aws_sqs_queue.devops-test-queuing-system.arn
-    events    = ["s3:ObjectCreated:*"]
-  }
-}
+# resource "aws_s3_bucket_notification" "bucket_notification" {
+#   bucket = aws_s3_bucket.devops-test-app-s3-bucket.id
+#   queue {
+#     queue_arn = aws_sqs_queue.devops-test-queuing-system.arn
+#     events    = ["s3:ObjectCreated:*"]
+#   }
+# }
 
 

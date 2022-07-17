@@ -59,6 +59,14 @@ resource "aws_security_group" "devops-test-web-server-security-group" {
     ]
   }
   ingress {
+    from_port = 1220
+    to_port   = 1220
+    protocol  = "tcp"
+    cidr_blocks = [
+      var.vpc_cibr_block,
+    ]
+  }
+  ingress {
     from_port = 80
     to_port   = 80
     protocol  = "tcp"
@@ -84,27 +92,6 @@ resource "aws_security_group" "devops-test-web-server-security-group" {
   }
   tags = {
     "Name"        = "devops-test-${var.environment_prefix}-web-server-security-group"
-    "Environment" = "${var.environment}"
-  }
-}
-
-resource "aws_alb_listener" "devops-test-app-webserver-alb-listener" {
-  load_balancer_arn = aws_lb.devops-test-app-public-lb.arn
-  protocol          = "TCP"
-  port              = 80
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.devops-test-app-webserver-lb-target-group.arn
-  }
-}
-
-resource "aws_lb_target_group" "devops-test-app-webserver-lb-target-group" {
-  port     = 80
-  protocol = "TCP"
-  vpc_id   = aws_vpc.devops-test-app-vpc.id
-  name     = "${var.environment_prefix}-webserver-lb-target-group"
-  tags = {
-    "Name"        = "devops-test-${var.environment_prefix}-webserver-lb-target-group"
     "Environment" = "${var.environment}"
   }
 }
